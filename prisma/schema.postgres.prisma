@@ -1,0 +1,50 @@
+// Schema para PostgreSQL (Produção - Vercel/Neon/Supabase)
+// Para usar: copie este arquivo para schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  id          String        @id @default(cuid())
+  nome        String
+  telefone    String?
+  email       String?
+  observacoes String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  agendamentos Agendamento[]
+}
+
+model Agendamento {
+  id          String   @id @default(cuid())
+  clienteId   String
+  cliente     Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  data        DateTime @db.Date
+  horaInicio  String
+  horaFim     String
+  servico     String
+  valor       Decimal? @db.Decimal(10, 2)
+  status      String   @default("agendado")
+  observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([data])
+  @@index([clienteId])
+}
+
+model Servico {
+  id        String   @id @default(cuid())
+  nome      String   @unique
+  descricao String?
+  duracao   Int
+  valor     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
